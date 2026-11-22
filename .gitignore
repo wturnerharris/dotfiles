@@ -1,1 +1,4 @@
 .DS_Store
+# Left over from the old layout (plugins and undo history now live in ~/.vim)
+vim/plugged/
+vim/undodir/
