@@ -1,0 +1,40 @@
+# ~/.bashrc: interactive bash (the Mac mini still uses bash). Symlinked from the repo.
+
+# Repo location, found by following this file's symlink
+_src="${BASH_SOURCE[0]}"
+while [ -L "$_src" ]; do
+  _dir="$(cd -P "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  case "$_src" in /*) ;; *) _src="$_dir/$_src" ;; esac
+done
+DOTFILES="$(cd -P "$(dirname "$_src")/.." && pwd)"
+unset _src _dir
+
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv bash)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv bash)"
+fi
+
+. "$DOTFILES/shell/env.sh"
+
+### History
+shopt -s histappend
+export HISTCONTROL=ignoredups
+export HISTFILESIZE=10000
+export HISTSIZE=10000
+export HISTTIMEFORMAT='%F %T '
+export HISTIGNORE="pwd:history"
+# Pull in lines written by other open shells
+export PROMPT_COMMAND='history -n;'
+
+### Prompt: blank line, green user@host, yellow path, then $ on its own line
+export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h: \[\e[33m\]\w\[\e[0m\]\n\$ '
+
+### Aliases and functions
+. "$DOTFILES/shell/aliases.sh"
+. "$DOTFILES/shell/functions.sh"
+[ -n "$DOTFILES_WORK" ] && . "$DOTFILES/shell/work.sh"
+
+# Machine-only bash tweaks, not in the repo
+[ -r "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"

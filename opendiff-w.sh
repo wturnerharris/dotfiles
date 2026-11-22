@@ -1,2 +1,0 @@
-#!/bin/bash
-opendiff "$@" | cat

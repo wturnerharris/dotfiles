@@ -1,0 +1,56 @@
+# ~/.zshrc: interactive zsh. Symlinked from the dotfiles repo.
+
+# Repo location, found by following this file's symlink
+DOTFILES="${${(%):-%x}:A:h:h}"
+
+typeset -U path   # no duplicate PATH entries
+source "$DOTFILES/shell/env.sh"
+
+### History
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+HISTORY_IGNORE='(pwd|history)'
+setopt EXTENDED_HISTORY      # store a timestamp with each command
+setopt SHARE_HISTORY         # share history between open shells
+setopt HIST_IGNORE_DUPS      # skip a command identical to the previous one
+setopt HIST_IGNORE_SPACE     # a leading space keeps a command out of history
+setopt HIST_REDUCE_BLANKS
+setopt INTERACTIVE_COMMENTS
+
+### Completion
+if [[ -n $HOMEBREW_PREFIX && -d $HOMEBREW_PREFIX/share/zsh/site-functions ]]; then
+  fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
+fi
+autoload -Uz compinit && compinit
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'   # case-insensitive
+zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+### Prompt: blank line, green user@host, yellow path, then $ on its own line
+PROMPT=$'\n%F{green}%n@%m: %F{yellow}%~%f\n%(!.#.$) '
+
+# Window title shows the current directory
+_dotfiles_title() { print -Pn '\e]0;%~\a' }
+autoload -Uz add-zsh-hook && add-zsh-hook precmd _dotfiles_title
+
+### Aliases and functions
+source "$DOTFILES/shell/aliases.sh"
+source "$DOTFILES/shell/functions.sh"
+[[ -n $DOTFILES_WORK ]] && source "$DOTFILES/shell/work.sh"
+
+### fzf: Ctrl-R history search, Ctrl-T file picker, Alt-C cd
+if command -v fzf >/dev/null; then
+  source <(fzf --zsh)
+fi
+
+### Suggestions and syntax highlighting (Homebrew); highlighting must load last
+if [[ -n $HOMEBREW_PREFIX ]]; then
+  [[ -r $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
+    source "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  [[ -r $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] &&
+    source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# Machine-only zsh tweaks, not in the repo
+[[ -r $HOME/.zshrc.local ]] && source "$HOME/.zshrc.local"

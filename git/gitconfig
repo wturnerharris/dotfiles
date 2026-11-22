@@ -1,0 +1,85 @@
+# ~/.gitconfig: shared git settings. Symlinked from the dotfiles repo.
+# Machine-specific settings (GUI tool paths, a work identity, LFS) go in
+# ~/.gitconfig.local, which is included at the bottom and never committed.
+
+[user]
+	name = Wes Turner
+	email = wturnerharris@gmail.com
+[core]
+	excludesfile = ~/.gitignore_global
+	editor = vim
+	autocrlf = false
+[init]
+	defaultBranch = main
+[push]
+	autoSetupRemote = true
+[fetch]
+	prune = true
+[merge]
+	summary = true
+[mergetool]
+	keepBackup = false
+	prompt = false
+[diff]
+	algorithm = patience
+	mnemonicprefix = true
+[rerere]
+	enabled = true
+[color]
+	ui = auto
+[color "branch"]
+	current = yellow reverse
+	local = yellow
+	remote = green
+[color "diff"]
+	meta = yellow bold
+	frag = magenta bold
+	old = red
+	new = green
+[advice]
+	statusHints = false
+[alias]
+	a = add
+	aa = add .
+	chunkyadd = add --patch
+	snapshot = !git stash push -m \"snapshot: $(date)\" && git stash apply \"stash@{0}\"
+	snapshots = !git stash list --grep snapshot
+	recent-branches = !git for-each-ref --count=15 --sort=-committerdate refs/heads/ --format='%(refname:short)'
+	b = branch -v
+	c = commit -m
+	ca = commit -am
+	ci = commit
+	amend = commit --amend
+	oops = commit --amend --no-edit
+	co = checkout
+	nb = checkout -b
+	cp = cherry-pick -x
+	d = diff
+	dc = diff --cached
+	last = diff HEAD^
+	l = log --graph --date=short
+	changes = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\" --name-status
+	short = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\"
+	simple = log --pretty=format:\" * %s\"
+	pl = pull
+	ps = push
+	rc = rebase --continue
+	rs = rebase --skip
+	r = remote -v
+	unstage = reset HEAD
+	uncommit = reset --soft HEAD^
+	filelog = log -u
+	mt = mergetool
+	ss = stash
+	sp = stash pop
+	sl = stash list
+	sa = stash apply
+	sd = stash drop
+	s = status
+	st = status
+	t = tag -n
+	grog = log --graph --abbrev-commit --decorate --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)'
+
+# Last, so machine-specific settings win
+[include]
+	path = ~/.gitconfig.local
