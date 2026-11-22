@@ -36,5 +36,10 @@ export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h: \[\e[33m\]\w\[\e[0m\]\n\$ '
 . "$DOTFILES/shell/functions.sh"
 [ -n "$DOTFILES_WORK" ] && . "$DOTFILES/shell/work.sh"
 
+### fzf: Ctrl-R history search, Ctrl-T file picker, Alt-C cd
+if command -v fzf >/dev/null 2>&1; then
+  eval "$(fzf --bash 2>/dev/null)"
+fi
+
 # Machine-only bash tweaks, not in the repo
 [ -r "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"

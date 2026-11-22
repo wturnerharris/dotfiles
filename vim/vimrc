@@ -4,8 +4,23 @@
 "
 " PLUGINS
 "
+" fzf comes from Homebrew when it's installed there
+let s:brew_fzf = ''
+for s:dir in ['/opt/homebrew/opt/fzf', '/usr/local/opt/fzf']
+  if isdirectory(s:dir)
+    let s:brew_fzf = s:dir
+    break
+  endif
+endfor
+
 if filereadable(expand('~/.vim/autoload/plug.vim'))
   call plug#begin('~/.vim/plugged')
+  if empty(s:brew_fzf)
+    " No Homebrew fzf (e.g. Intel Macs without a prebuilt package): vim-plug
+    " downloads fzf's prebuilt binary into ~/.vim/plugged/fzf/bin instead.
+    " shell/env.sh puts that on PATH so the shell gets Ctrl-R too.
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  endif
   Plug 'joshdick/onedark.vim'
   Plug 'vim-airline/vim-airline'
   Plug 'tpope/vim-fugitive'
@@ -19,13 +34,9 @@ if filereadable(expand('~/.vim/autoload/plug.vim'))
   call plug#end()
 endif
 
-" fzf itself comes from Homebrew
-for s:fzf_dir in ['/opt/homebrew/opt/fzf', '/usr/local/opt/fzf']
-  if isdirectory(s:fzf_dir)
-    execute 'set runtimepath+=' . s:fzf_dir
-    break
-  endif
-endfor
+if !empty(s:brew_fzf)
+  execute 'set runtimepath+=' . s:brew_fzf
+endif
 
 "
 " LEADER

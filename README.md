@@ -23,11 +23,14 @@ The installer:
   (plus `~/.bashrc` and `~/.bash_profile` with `--bash`, or when your login shell is bash);
 - moves any file it replaces into `~/.local/state/dotfiles/backups/`; if it replaces a real
   `~/.gitconfig`, that machine's old settings are kept in `~/.gitconfig.local`;
-- installs `vim`, `fzf`, `zsh-autosuggestions` and `zsh-syntax-highlighting` with Homebrew;
+- installs `vim`, `fzf`, `zsh-autosuggestions` and `zsh-syntax-highlighting` with Homebrew,
+  skipping any that Homebrew would have to compile (common on Intel Macs). Then the system vim
+  is used, and vim-plug downloads fzf's prebuilt binary into `~/.vim/plugged/fzf` instead.
+  `--allow-source-builds` compiles them anyway;
 - installs [vim-plug](https://github.com/junegunn/vim-plug) and the vim plugins into `~/.vim`;
 - imports the **One Dark** Terminal profile and makes it the default.
 
-Options: `--dry-run`, `--bash`, `--no-brew`, `--no-vim`, `--no-terminal`. Running it again is safe.
+Options: `--dry-run`, `--bash`, `--no-brew`, `--allow-source-builds`, `--no-vim`, `--no-terminal`. Running it again is safe.
 
 ## Uninstall
 

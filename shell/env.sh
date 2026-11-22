@@ -18,6 +18,8 @@ _dotfiles_path_prepend "$HOME/.local/bin"
 _dotfiles_path_prepend "$HOME/.bin"
 _dotfiles_path_append "$HOME/.composer/vendor/bin"
 _dotfiles_path_append "$HOME/.serverless/bin"
+# fzf downloaded by vim-plug, used when Homebrew has no fzf for this Mac
+_dotfiles_path_append "$HOME/.vim/plugged/fzf/bin"
 unset -f _dotfiles_path_prepend _dotfiles_path_append
 export PATH
 

@@ -13,6 +13,11 @@ Usage: ./install.sh [options]
   --dry-run       Show what would happen without changing anything
   --bash          Also link ~/.bashrc and ~/.bash_profile (default when your login shell is bash)
   --no-brew       Don't install Homebrew formulae (vim, fzf, zsh plugins)
+  --allow-source-builds
+                  Install formulae even when Homebrew has no prebuilt package for this Mac
+                  and would compile them (slow; needs the Command Line Tools). By default
+                  those are skipped: vim falls back to the system vim, fzf to a prebuilt
+                  binary that vim-plug downloads into ~/.vim/plugged/fzf.
   --no-vim        Don't install vim-plug or vim plugins
   --no-terminal   Don't import the "One Dark" Terminal profile or make it the default
   -h, --help      Show this help
@@ -21,7 +26,7 @@ EOF
 
 . "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
 
-WITH_BASH=0; WITH_BREW=1; WITH_VIM=1; WITH_TERMINAL=1
+WITH_BASH=0; WITH_BREW=1; WITH_VIM=1; WITH_TERMINAL=1; SOURCE_BUILDS=0
 case "${SHELL:-}" in */bash) WITH_BASH=1 ;; esac
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -30,6 +35,7 @@ while [ $# -gt 0 ]; do
     --no-brew) WITH_BREW=0 ;;
     --no-vim) WITH_VIM=0 ;;
     --no-terminal) WITH_TERMINAL=0 ;;
+    --allow-source-builds) SOURCE_BUILDS=1 ;;
     -h|--help) usage; exit 0 ;;
     *) usage >&2; die "unknown option: $1" ;;
   esac
@@ -126,7 +132,15 @@ if [ "$WITH_BREW" = 1 ]; then
     before="$("$BREW" list --formula -1 | sort)"
     todo=""
     for f in $BREW_FORMULAE; do
-      if printf '%s\n' "$before" | grep -qx "$f"; then info "$f already installed"; else todo="$todo $f"; fi
+      if printf '%s\n' "$before" | grep -qx "$f"; then
+        info "$f already installed"
+      elif [ "$SOURCE_BUILDS" = 0 ] &&
+           HOMEBREW_NO_AUTO_UPDATE=1 "$BREW" install --dry-run "$f" 2>&1 | grep -q "build from source"; then
+        # e.g. Intel Macs, where Homebrew no longer ships prebuilt packages for everything
+        warn "skipping $f: Homebrew has no prebuilt package for this Mac (use --allow-source-builds to compile it)"
+      else
+        todo="$todo $f"
+      fi
     done
     if [ -n "$todo" ]; then
       # brew creates ~/.homebrew on its first install; remove it on uninstall if this made it
