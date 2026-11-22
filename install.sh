@@ -146,16 +146,29 @@ if [ "$WITH_BREW" = 1 ]; then
       # brew creates ~/.homebrew on its first install; remove it on uninstall if this made it
       if [ ! -e "$HOME/.homebrew" ] && ! recorded generated "~/.homebrew"; then record generated "~/.homebrew"; fi
       # shellcheck disable=SC2086
-      run "$BREW" install $todo || die "brew install failed"
+      brew_ok=1
+      run "$BREW" install $todo || brew_ok=0
       if [ "$DRY_RUN" = 0 ]; then
         # Record everything that's new, dependencies included, so uninstall
-        # removes exactly what this added.
+        # removes exactly what this added. Done even if brew reported an error,
+        # since some formulae may have installed before it failed.
         after="$("$BREW" list --formula -1 | sort)"
         for f in $(comm -13 <(printf '%s\n' "$before") <(printf '%s\n' "$after")); do
           record brew "$f"
         done
       fi
-      ok "installed:$todo"
+      if [ "$brew_ok" = 1 ]; then
+        ok "installed:$todo"
+      else
+        for f in $todo; do
+          if "$BREW" list --formula "$f" >/dev/null 2>&1; then
+            info "$f is installed"
+          else
+            warn "$f did not install"
+          fi
+        done
+        warn "brew reported an error (see its output above); continuing"
+      fi
     fi
   fi
 fi
