@@ -19,7 +19,7 @@ if filereadable(expand('~/.vim/autoload/plug.vim'))
     " No Homebrew fzf (e.g. Intel Macs without a prebuilt package): vim-plug
     " downloads fzf's prebuilt binary into ~/.vim/plugged/fzf/bin instead.
     " shell/env.sh puts that on PATH so the shell gets Ctrl-R too.
-    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf', { 'do': './install --bin' }
   endif
   Plug 'joshdick/onedark.vim'
   Plug 'vim-airline/vim-airline'

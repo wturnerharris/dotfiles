@@ -49,11 +49,13 @@ record() {
   printf '%s\n' "$*" >> "$MANIFEST"
 }
 
-# True if the manifest already has a line starting with these fields
+# True if the manifest has a line made of these fields, optionally followed
+# by more fields. Whole fields only: "created ~/.vim" doesn't match "created ~/.vim/plugged".
 recorded() {
   [ -f "$MANIFEST" ] || return 1
-  local IFS=$'\t'
-  grep -qF -- "$*" "$MANIFEST"
+  local IFS=$'\t' key
+  key="$*"
+  awk -v k="$key" '$0 == k || index($0, k "\t") == 1 { found = 1 } END { exit !found }' "$MANIFEST"
 }
 
 # Paths in the manifest are stored with a literal ~ for readability

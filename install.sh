@@ -195,6 +195,12 @@ if [ "$WITH_VIM" = 1 ]; then
   [ -n "$BREW" ] && [ -x "$("$BREW" --prefix)/bin/vim" ] && VIM="$("$BREW" --prefix)/bin/vim"
   # -i NONE: don't create ~/.viminfo; -E -s: silent Ex mode, no terminal UI
   run "$VIM" -i NONE -E -s -u "$HOME/.vimrc" +'PlugInstall --sync' +qall
+  # vim-plug's post-install hooks don't always run headless; make sure the
+  # fallback fzf binary (used when Homebrew has no fzf) was downloaded
+  FZF_PLUG="$HOME/.vim/plugged/fzf"
+  if [ -x "$FZF_PLUG/install" ] && [ ! -x "$FZF_PLUG/bin/fzf" ]; then
+    run "$FZF_PLUG/install" --bin >/dev/null || warn "could not download fzf into $(tilde "$FZF_PLUG")"
+  fi
   ok "vim plugins installed in ~/.vim/plugged"
 fi
 
